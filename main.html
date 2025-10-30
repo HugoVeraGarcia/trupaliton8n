@@ -260,9 +260,30 @@
                 font-size: 14px;
             }
         }
+            .page-logo {
+                position: fixed;
+                top: 20px;
+                left: 40px;
+                z-index: 10;
+        }
+
+            .page-logo img {
+                width: 160px;          /* ajusta el tamaño */
+                height: auto;
+                border-radius: 12px;  /* opcional */
+                filter: drop-shadow(0 0 10px rgba(0,0,0,0.6)); /* sombra suave */
+                transition: transform 0.3s ease;
+        }
+
+            .page-logo img:hover {
+                transform: scale(1.05);
+        }
     </style>
 </head>
 <body>
+    <div class="page-logo">
+        <img src="../public/logo.png" alt="Logo Trupal">
+    </div>
     <div class="container">
         <div class="header">
             <h1>🤖 Trupalito 4.0 – Asistente IA</h1>
@@ -271,7 +292,7 @@
 
         <div class="chat-box" id="chatBox">
             <div class="empty-state">
-                Envía un mensaje para comenzar la conversación...
+                Escribe hola para comenzar la conversación...
             </div>
         </div>
 
@@ -279,7 +300,7 @@
             <input
                 type="text"
                 id="messageInput"
-                placeholder="Escribe tu mensaje aquí ..."
+                placeholder="Escribe tu mensaje aquí..."
                 autocomplete="off"
             >
             <button id="sendButton">Enviar</button>
