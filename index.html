@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trupalito 4.0 - Asistente IA</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #000000 0%, #101820 100%);
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background: #1a1a1a;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 90vh;
+            max-height: 700px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #333 0%, #222 100%);
+            padding: 25px;
+            text-align: center;
+            border-bottom: 2px solid #444;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        .header .subtitle {
+            font-size: 14px;
+            color: #999;
+            margin-top: 5px;
+        }
+
+        .chat-box {
+            flex: 1;
+            overflow-y: auto;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            background: #0f0f0f;
+        }
+
+        .chat-box::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .chat-box::-webkit-scrollbar-track {
+            background: #1a1a1a;
+        }
+
+        .chat-box::-webkit-scrollbar-thumb {
+            background: #444;
+            border-radius: 4px;
+        }
+
+        .message {
+            display: flex;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.user {
+            justify-content: flex-end;
+        }
+
+        .message.bot {
+            justify-content: flex-start;
+        }
+
+        .message-content {
+            max-width: 70%;
+            padding: 15px 20px;
+            border-radius: 18px;
+            word-wrap: break-word;
+            line-height: 1.5;
+        }
+
+        .message.user .message-content {
+            background: linear-gradient(135deg, #555 0%, #444 100%);
+            color: #fff;
+            border-bottom-right-radius: 5px;
+        }
+
+        .message.bot .message-content {
+            background: linear-gradient(135deg, #2a2a2a 0%, #222 100%);
+            color: #e0e0e0;
+            border-bottom-left-radius: 5px;
+        }
+
+        .message-label {
+            font-size: 11px;
+            color: #888;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .input-area {
+            padding: 20px;
+            background: #1a1a1a;
+            border-top: 2px solid #333;
+            display: flex;
+            gap: 15px;
+        }
+
+        .input-area input {
+            flex: 1;
+            padding: 15px 20px;
+            border: 2px solid #333;
+            border-radius: 25px;
+            background: #0f0f0f;
+            color: #fff;
+            font-size: 15px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .input-area input:focus {
+            border-color: #555;
+            box-shadow: 0 0 15px rgba(85, 85, 85, 0.3);
+        }
+
+        .input-area button {
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #555 0%, #333 100%);
+            color: #fff;
+            border: none;
+            border-radius: 25px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .input-area button:hover {
+            background: linear-gradient(135deg, #666 0%, #444 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 7px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .input-area button:active {
+            transform: translateY(0);
+        }
+
+        .input-area button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .error-message {
+            background: linear-gradient(135deg, #ff4444 0%, #cc0000 100%);
+            color: #fff;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            margin: 10px 30px;
+            animation: shake 0.5s ease;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .typing-indicator {
+            display: flex;
+            gap: 5px;
+            padding: 15px 20px;
+        }
+
+        .typing-indicator span {
+            width: 8px;
+            height: 8px;
+            background: #666;
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-indicator span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-indicator span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-10px); }
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #666;
+            padding: 50px 20px;
+            font-size: 16px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                height: 100vh;
+                max-height: 100vh;
+                border-radius: 0;
+            }
+
+            .header h1 {
+                font-size: 22px;
+            }
+
+            .message-content {
+                max-width: 85%;
+            }
+
+            .input-area {
+                padding: 15px;
+            }
+
+            .input-area input {
+                padding: 12px 18px;
+                font-size: 14px;
+            }
+
+            .input-area button {
+                padding: 12px 25px;
+                font-size: 14px;
+            }
+        }
+            .page-logo {
+                position: fixed;
+                top: 20px;
+                left: 40px;
+                z-index: 10;
+        }
+
+            .page-logo img {
+                width: 160px;          /* ajusta el tamaño */
+                height: auto;
+                border-radius: 12px;  /* opcional */
+                filter: drop-shadow(0 0 10px rgba(0,0,0,0.6)); /* sombra suave */
+                transition: transform 0.3s ease;
+        }
+
+            .page-logo img:hover {
+                transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <div class="page-logo">
+        <img src="../public/logo.png" alt="Logo Trupal">
+    </div>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 Trupalito 4.0 – Asistente IA</h1>
+            <div class="subtitle">Tu asistente inteligente siempre disponible</div>
+        </div>
+
+        <div class="chat-box" id="chatBox">
+            <div class="empty-state">
+                Escribe hola para comenzar la conversación...
+            </div>
+        </div>
+
+        <div class="input-area">
+            <input
+                type="text"
+                id="messageInput"
+                placeholder="Escribe tu mensaje aquí..."
+                autocomplete="off"
+            >
+            <button id="sendButton">Enviar</button>
+        </div>
+    </div>
+
+    
+    <script>
+        const WEBHOOK_URL = 'https://trupalito.app.n8n.cloud/webhook/dacd90b4-8247-4210-bc0f-324ac618e5a0/chat';
+
+        const chatBox = document.getElementById('chatBox');
+        const messageInput = document.getElementById('messageInput');
+        const sendButton = document.getElementById('sendButton');
+
+        let isFirstMessage = true;
+        let sessionId = localStorage.getItem('trupalitoSessionId') || crypto.randomUUID();
+        localStorage.setItem('trupalitoSessionId', sessionId);
+
+        function addMessage(text, sender) {
+            if (isFirstMessage) {
+                chatBox.innerHTML = '';
+                isFirstMessage = false;
+            }
+
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'message-content';
+            contentDiv.textContent = text;
+
+            messageDiv.appendChild(contentDiv);
+            chatBox.appendChild(messageDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function showTypingIndicator() {
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'message bot';
+            typingDiv.id = 'typing-indicator';
+            typingDiv.innerHTML = `<div class="typing-indicator"><span></span><span></span><span></span></div>`;
+            chatBox.appendChild(typingDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function removeTypingIndicator() {
+            const typingIndicator = document.getElementById('typing-indicator');
+            if (typingIndicator) typingIndicator.remove();
+        }
+
+        function showError(message) {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error-message';
+            errorDiv.textContent = message;
+            chatBox.appendChild(errorDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+            setTimeout(() => errorDiv.remove(), 5000);
+        }
+
+        async function sendMessage() {
+            const message = messageInput.value.trim();
+            if (!message) return;
+
+            addMessage(message, 'user');
+            messageInput.value = '';
+            sendButton.disabled = true;
+
+            showTypingIndicator();
+
+            try {
+                const response = await fetch(WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        chatInput: message,
+                        sessionId: sessionId,
+                        metadata: { source: 'Trupalito 4.0 Web' }
+                    })
+                });
+
+                removeTypingIndicator();
+
+                if (!response.ok) {
+                    throw new Error(`Error del servidor: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                const botMessage = data.output?.[0]?.message ?? data.output ?? 'Sin respuesta';
+                addMessage(botMessage, 'bot');
+
+            } catch (error) {
+                console.error(error);
+                removeTypingIndicator();
+                showError('No se pudo conectar con el servidor n8n.');
+            } finally {
+                sendButton.disabled = false;
+                messageInput.focus();
+            }
+        }
+
+        sendButton.addEventListener('click', sendMessage);
+        messageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
+        messageInput.focus();
+        </script>
+</body>
+</html>
